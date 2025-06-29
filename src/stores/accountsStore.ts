@@ -18,7 +18,6 @@ export interface Account {
 export const useAccountsStore = defineStore('accounts', () => {
   const accounts: Ref<Account[]> = ref([])
 
-  // Загрузка из localStorage при инициализации
   const loadAccounts = () => {
     const stored = localStorage.getItem('accounts')
     if (stored) {
@@ -31,12 +30,10 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   }
 
-  // Сохранение в localStorage
   const saveAccounts = () => {
     localStorage.setItem('accounts', JSON.stringify(accounts.value))
   }
 
-  // Создание новой учетной записи
   const createAccount = (): Account => {
     return {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -48,14 +45,12 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   }
 
-  // Добавление новой учетной записи
   const addAccount = () => {
     const newAccount = createAccount()
     accounts.value.push(newAccount)
     saveAccounts()
   }
 
-  // Удаление учетной записи
   const removeAccount = (id: string) => {
     const index = accounts.value.findIndex(account => account.id === id)
     if (index !== -1) {
@@ -64,7 +59,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   }
 
-  // Обновление учетной записи
   const updateAccount = (id: string, updates: Partial<Account>) => {
     const account = accounts.value.find(acc => acc.id === id)
     if (account) {
@@ -73,7 +67,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   }
 
-  // Валидация учетной записи
   const validateAccount = (account: Account): boolean => {
     const hasLogin = account.login.trim().length > 0 && account.login.length <= 100
     const hasPassword = account.type === 'LDAP' || (account.password !== null && account.password.trim().length > 0 && account.password.length <= 100)
@@ -82,7 +75,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     return hasLogin && hasPassword && hasValidTags
   }
 
-  // Преобразование строки меток в массив объектов
   const parseTagsString = (tagsString: string): TagItem[] => {
     if (!tagsString.trim()) return []
     
@@ -92,16 +84,13 @@ export const useAccountsStore = defineStore('accounts', () => {
       .map(tag => ({ text: tag }))
   }
 
-  // Преобразование массива меток в строку
   const tagsToString = (tags: TagItem[]): string => {
     return tags.map(tag => tag.text).join('; ')
   }
 
-  // Computed свойства
   const accountsCount = computed(() => accounts.value.length)
   const validAccountsCount = computed(() => accounts.value.filter(acc => acc.isValid).length)
 
-  // Инициализация при создании store
   loadAccounts()
 
   return {

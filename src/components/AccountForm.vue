@@ -1,6 +1,5 @@
 <template>
   <div class="account-form">
-    <!-- Заголовок и кнопка добавления -->
     <div class="form-header">
       <h2>Учетные записи</h2>
       <Button 
@@ -12,15 +11,12 @@
       />
     </div>
 
-    <!-- Подсказка для поля метка -->
     <div class="form-hint">
       <i class="pi pi-info-circle"></i>
       <span>Для указания нескольких меток для одной пары логин/пароль используйте разделитель ;</span>
     </div>
 
-    <!-- Список учетных записей -->
     <div class="accounts-list">
-      <!-- Заголовки колонок -->
       <div class="accounts-header">
         <div class="header-col">Метка</div>
         <div class="header-col">Тип записи</div>
@@ -29,7 +25,6 @@
         <div class="header-col"></div>
       </div>
 
-      <!-- Учетные записи - каждая в своей форме -->
       <form 
         v-for="account in accountsStore.accounts" 
         :key="account.id"
@@ -37,7 +32,6 @@
         class="account-form-item"
       >
         <div class="account-row" :class="{ 'ldap-layout': account.type === 'LDAP' }">
-          <!-- Метка -->
           <div class="account-field">
             <InputText
               :modelValue="accountsStore.tagsToString(account.tags)"
@@ -51,7 +45,6 @@
             />
           </div>
 
-          <!-- Тип записи -->
           <div class="account-field">
             <Select
               :modelValue="account.type"
@@ -63,7 +56,6 @@
             />
           </div>
 
-          <!-- Логин - расширенный для LDAP -->
           <div class="account-field" :class="{ 'login-expanded': account.type === 'LDAP' }">
             <InputText
               :modelValue="account.login"
@@ -78,7 +70,6 @@
             />
           </div>
 
-          <!-- Пароль - скрыто для LDAP -->
           <div v-if="account.type === 'Локальная'" class="account-field">
             <Password
               :modelValue="account.password || ''"
@@ -95,7 +86,6 @@
             />
           </div>
 
-          <!-- Кнопки действий -->
           <div class="account-field">
             <Button
               icon="pi pi-eye"
@@ -117,7 +107,6 @@
         </div>
       </form>
 
-      <!-- Сообщение когда нет записей -->
       <div v-if="accountsStore.accounts.length === 0" class="no-accounts">
         <p>Нет добавленных учетных записей</p>
         <p class="no-accounts-hint">Нажмите кнопку "+" чтобы добавить первую учетную запись</p>
@@ -142,7 +131,6 @@ const typeOptions = ref([
   'Локальная'
 ])
 
-// Обработчики событий
 const handleAddAccount = () => {
   accountsStore.addAccount()
 }
@@ -166,7 +154,6 @@ const handleTypeChange = (id: string, type: any) => {
   const validType = type as 'LDAP' | 'Локальная'
   const updates: Partial<Account> = { type: validType }
   
-  // При выборе LDAP скрываем и обнуляем пароль
   if (validType === 'LDAP') {
     updates.password = null
   } else if (validType === 'Локальная') {
@@ -274,14 +261,11 @@ const handleTagsInput = (id: string, value: string | undefined) => {
   grid-template-columns: 2fr 1.5fr 2fr 2fr 120px;
 }
 
-/* Макет для LDAP записей (без колонки пароля) */
 .account-row.ldap-layout {
   grid-template-columns: 2fr 1.5fr 4fr 120px;
 }
 
-/* Расширенное поле логина для LDAP */
 .login-expanded {
-  /* Логин занимает пространство логина + пароля */
   grid-column: span 1;
 }
 
@@ -349,7 +333,6 @@ const handleTagsInput = (id: string, value: string | undefined) => {
     margin-bottom: 4px;
   }
 
-  /* Убираем расширение логина на мобильных */
   .login-expanded {
     grid-column: span 1;
   }
