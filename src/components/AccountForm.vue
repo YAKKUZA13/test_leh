@@ -41,7 +41,7 @@
           <div class="account-field">
             <InputText
               :modelValue="accountsStore.tagsToString(account.tags)"
-              @update:modelValue="(value: string) => handleTagsInput(account.id, value)"
+              @update:modelValue="(value) => handleTagsInput(account.id, value)"
               @blur="handleTagsChange(account.id, $event)"
               placeholder="Значение"
               :class="{ 'p-invalid': !account.isValid && account.tags.some(tag => tag.text.length > 50) }"
@@ -55,7 +55,7 @@
           <div class="account-field">
             <Select
               :modelValue="account.type"
-              @update:modelValue="(value: string) => handleTypeChange(account.id, value as 'LDAP' | 'Локальная')"
+              @update:modelValue="(value) => handleTypeChange(account.id, value)"
               :options="typeOptions"
               placeholder="Выберите тип"
               :class="{ 'p-invalid': !account.isValid }"
@@ -67,7 +67,7 @@
           <div class="account-field" :class="{ 'login-expanded': account.type === 'LDAP' }">
             <InputText
               :modelValue="account.login"
-              @update:modelValue="(value: string) => handleLoginChange(account.id, value)"
+              @update:modelValue="(value) => handleLoginChange(account.id, value)"
               @blur="handleValidation(account.id)"
               placeholder="Значение"
               :class="{ 'p-invalid': !account.isValid && (!account.login || account.login.length > 100) }"
@@ -82,7 +82,7 @@
           <div v-if="account.type === 'Локальная'" class="account-field">
             <Password
               :modelValue="account.password || ''"
-              @update:modelValue="(value: string) => handlePasswordChange(account.id, value)"
+              @update:modelValue="(value) => handlePasswordChange(account.id, value)"
               @blur="handleValidation(account.id)"
               placeholder="Значение"
               :class="{ 'p-invalid': !account.isValid && account.type === 'Локальная' && (!account.password || account.password.length > 100) }"
@@ -160,13 +160,16 @@ const handleTagsChange = (id: string, event: Event) => {
   handleValidation(id)
 }
 
-const handleTypeChange = (id: string, type: 'LDAP' | 'Локальная') => {
-  const updates: Partial<Account> = { type }
+const handleTypeChange = (id: string, type: any) => {
+  if (!type || (type !== 'LDAP' && type !== 'Локальная')) return
+  
+  const validType = type as 'LDAP' | 'Локальная'
+  const updates: Partial<Account> = { type: validType }
   
   // При выборе LDAP скрываем и обнуляем пароль
-  if (type === 'LDAP') {
+  if (validType === 'LDAP') {
     updates.password = null
-  } else if (type === 'Локальная') {
+  } else if (validType === 'Локальная') {
     updates.password = ''
   }
   
@@ -174,11 +177,13 @@ const handleTypeChange = (id: string, type: 'LDAP' | 'Локальная') => {
   handleValidation(id)
 }
 
-const handleLoginChange = (id: string, login: string) => {
+const handleLoginChange = (id: string, login: string | undefined) => {
+  if (login === undefined) return
   accountsStore.updateAccount(id, { login })
 }
 
-const handlePasswordChange = (id: string, password: string) => {
+const handlePasswordChange = (id: string, password: string | undefined) => {
+  if (password === undefined) return
   accountsStore.updateAccount(id, { password })
 }
 
@@ -190,7 +195,8 @@ const handleValidation = (id: string) => {
   }
 }
 
-const handleTagsInput = (id: string, value: string) => {
+const handleTagsInput = (id: string, value: string | undefined) => {
+  if (!value) return
   const tags = accountsStore.parseTagsString(value)
   accountsStore.updateAccount(id, { tags })
   handleValidation(id)
